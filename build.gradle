@@ -1,0 +1,201 @@
+buildscript {
+    ext {
+        springBootVersion = '2.7.17'
+    }
+    ext['tomcat.version'] = '9.0.56'
+
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+
+}
+
+plugins{
+    id 'org.springframework.boot' version "${springBootVersion}"
+    id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+    id 'java'
+    id 'idea'
+    id 'java-library'
+    id 'org.openapi.generator' version '5.4.0'
+    id 'org.sonarqube' version '3.3'
+}
+
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'jacoco'
+apply plugin: "org.sonarqube"
+
+group = 'com.example'
+version = '0.0.1'
+
+sourceCompatibility = '11'
+targetCompatibility = '11'
+
+group 'PruebaTecnica'
+description 'Prueba tecnica para el cargo de desarrollador de software en founyou'
+version '1.0'
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+configurations {
+    developmentOnly
+    runtimeClasspath {
+        extendsFrom developmentOnly
+    }
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    compileOnly 'org.projectlombok:lombok:1.18.8'
+    annotationProcessor 'org.projectlombok:lombok:1.18.8'
+    testCompileOnly 'org.projectlombok:lombok:1.18.8'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.8'
+
+    runtimeOnly 'org.postgresql:postgresql'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.7.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.7.0'
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.mockito:mockito-junit-jupiter:4.5.1'
+    testImplementation 'org.hamcrest:hamcrest-library:2.2'
+    testImplementation 'org.springframework.ws:spring-ws-test:4.0.6'
+    testImplementation(group: 'org.springframework.boot', name: 'spring-boot-starter-test'){
+        exclude(module: 'commons-logging')
+    }
+
+    implementation 'org.openapitools:jackson-databind-nullable:0.2.1'
+    compile group: 'org.openapitools', name: 'openapi-generator-maven-plugin', version: '3.3.4'
+}
+
+bootJar{
+    enabled = true
+}
+
+jar {
+    enabled = false
+    manifest {
+        attributes 'Implementation-Title': project.description,
+                'Implementation-Version': project.hasProperty('artifactVersion') ? project.artifactVersion : version
+    }
+}
+
+/*def getCommitInfo = { ->
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'rev-parse', '--short', 'HEAD'
+        standardOutput = stdout
+    }
+    return stdout.toString().trim()
+}*/
+//ext.commitInfo = getCommitInfo()
+
+processResources {
+    filesMatching('boostrap.yaml') {
+        expand(project.properties)
+    }
+}
+
+test {
+    useJUnitPlatform()
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        csv.enabled false
+        html.enabled true
+    }
+    afterEvaluate {
+        classDirectories.from = files(classDirectories.files.collect {
+            fileTree(dir: it,
+                    exclude: ['**/generated/*',
+                              '**/*Application.class',
+                              '**/openapi/*',
+                              '**/openapi/model/*',
+                              '**/model/*',
+                              '**/Repository/*',
+                              '**/Service/Domain/*',
+                    ])
+        })
+    }
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule{
+            element = 'CLASS'
+            excludes = [ '**.generated.*',
+                         '**.*Application*',
+                         '**.openapi.*',
+                         '**.model.*',
+                         '**.Repository.*',
+                         '**.Service.Domain.*'
+            ]
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.90
+            }
+        }
+    }
+}
+
+check.dependsOn jacocoTestCoverageVerification
+
+afterEvaluate {
+    sonarqube{
+        properties{
+            properties["sonar.jacoco.reportPath"] = "${buildDir}/jacoco/test.exec"
+            properties["sonar.jacoco.itReportPath"] = "${buildDir}/jacoco/integrationTest.exec"
+            properties["sonar.jacoco.exclusions"] = '**/generated/**/*.*, ' +
+                    '**.*Application*, ' +
+                    '**.openapi.*, ' +
+                    '**.openapi.model.* ' +
+                    '**.model.* ' +
+                    '**.Repository.* ' +
+                    '**.Service.Domain.* '
+        }
+    }
+}
+
+test.finalizedBy jacocoTestReport
+
+openApiValidate {
+    inputSpec = "$rootDir/src/main/resources/api.yaml".toString()
+    recommend = true
+}
+
+openApiGenerate {
+    generatorName = "spring"
+    inputSpec = "$rootDir/src/main/resources/api.yaml".toString()
+    outputDir = "$buildDir/generated".toString()
+    apiPackage = "com.example.pruebatecnicafounyou.openapi"
+    modelPackage = "com.example.pruebatecnicafounyou.openapi.model"
+    configOptions = [
+            dateLibrary     : "java11",
+            interfaceOnly   : "true",
+            implicitHeaders : "true",
+    ]
+}
+
+compileJava.dependsOn 'openApiGenerate', 'processResources'
+sourceSets.main.java.srcDirs 'build/generated/src/main/java'
+sourceSets.main.java.srcDirs 'src/main/java'
