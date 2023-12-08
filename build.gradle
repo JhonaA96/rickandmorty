@@ -59,7 +59,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    //implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
 
     compileOnly 'org.projectlombok:lombok:1.18.8'
@@ -97,15 +97,15 @@ jar {
     }
 }
 
-/*def getCommitInfo = { ->
+def getCommitInfo = { ->
     def stdout = new ByteArrayOutputStream()
     exec {
         commandLine 'git', 'rev-parse', '--short', 'HEAD'
         standardOutput = stdout
     }
     return stdout.toString().trim()
-}*/
-//ext.commitInfo = getCommitInfo()
+}
+ext.commitInfo = getCommitInfo()
 
 processResources {
     filesMatching('boostrap.yaml') {

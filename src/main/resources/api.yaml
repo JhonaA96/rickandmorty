@@ -1,0 +1,43 @@
+openapi: '3.0.3'
+info:
+  description: |
+    Prueba tecnica para el cargo desarrollador de software en founyou
+  version: 1.0.0
+  x-template-version: 3.0.0
+  title: Prueba tecnica
+  contact:
+    name: Jhonatan Acuña Hernández
+    email: jonathan.961120@hotmail.com
+    url: 'https://www.linkedin.com/in/jhonaa96/'
+
+servers:
+    - url: '/api/v1'
+
+paths:
+  /characters:
+    get:
+      tags:
+        - characters
+      summary: Get all characters
+      operationId: characters
+      responses:
+          '200':
+            description: 'Characters'
+            content:
+                application/json:
+                  schema:
+                      $ref: '#/components/schemas/Characters'
+
+components:
+  schemas:
+    Characters:
+      type: object
+      properties:
+        name:
+          type: string
+        status:
+          type: string
+        gender:
+          type: string
+        image:
+          type: string
