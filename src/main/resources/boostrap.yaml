@@ -1,0 +1,7 @@
+info:
+  app:
+    commit: ${commitInfo}
+    version: ${version}
+spring:
+  application:
+    name: RickAndMorty

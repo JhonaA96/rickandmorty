@@ -3,3 +3,24 @@ provider:
     RickAndMorty:
       url: https://rickandmortyapi.com/api
       characters: /character
+
+spring:
+  datasource:
+    name: pruebaTecnicaSource
+    url: jdbc:postgresql://localhost:5432/prueba
+    username: postgres
+    password: root
+    hikari:
+      pool-name: pool
+      connection-timeout: 30000
+      maximum-pool-size: 1
+      idle-timeout: 600000
+      max-lifetime: 1800000
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true

@@ -14,7 +14,7 @@ servers:
     - url: '/api/v1'
 
 paths:
-  /characters:
+  /characters/getCharacters:
     get:
       tags:
         - characters
@@ -27,9 +27,49 @@ paths:
                 application/json:
                   schema:
                       $ref: '#/components/schemas/Characters'
+  /characters/saveCharacter:
+    post:
+      tags:
+        - characters
+      summary: save character
+      operationId: saveCharacter
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Character'
+      responses:
+        '200':
+          description: 'Character'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
 
 components:
   schemas:
+    Response:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Data'
+        notification:
+          $ref: '#/components/schemas/Notification'
+    Data:
+      type: object
+
+    Notification:
+      type: object
+      properties:
+        category:
+          type: string
+        code:
+          type: string
+        message:
+          type: string
+        description:
+          type: string
+
     Characters:
       type: array
       items:
