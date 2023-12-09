@@ -1,7 +1,7 @@
 openapi: '3.0.3'
 info:
   description: |
-    Prueba tecnica para el cargo desarrollador de software en founyou
+    Prueba tecnica
   version: 1.0.0
   x-template-version: 3.0.0
   title: Prueba tecnica
@@ -31,6 +31,10 @@ paths:
 components:
   schemas:
     Characters:
+      type: array
+      items:
+        $ref: '#/components/schemas/Character'
+    Character:
       type: object
       properties:
         name:
@@ -40,4 +44,33 @@ components:
         gender:
           type: string
         image:
+          type: string
+    Result:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        status:
+          type: string
+        species:
+          type: string
+        type:
+          type: string
+        gender:
+          type: string
+        origin:
+          type: object
+        location:
+          type: object
+        image:
+          type: string
+        episode:
+          type: array
+          items:
+            type: string
+        url:
+          type: string
+        created:
           type: string

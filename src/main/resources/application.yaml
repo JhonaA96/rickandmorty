@@ -1,1 +1,5 @@
-
+provider:
+  config:
+    RickAndMorty:
+      url: https://rickandmortyapi.com/api
+      characters: /character
