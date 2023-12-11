@@ -38,7 +38,7 @@ sourceCompatibility = '11'
 targetCompatibility = '11'
 
 group 'PruebaTecnica'
-description 'Prueba tecnica para el cargo de desarrollador de software en founyou'
+description 'Prueba tecnica para el cargo de desarrollador fullstack'
 version '1.0'
 
 tasks.withType(JavaCompile) {
